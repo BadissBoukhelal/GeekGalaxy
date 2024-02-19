@@ -6,7 +6,6 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,11 +15,8 @@ import java.util.function.Function;
 public class JwtUtil {
 
     private String secret = "ahmedbadisdilshat";
-
-    Instant now = Instant.now();
-    Instant expiration = now.plusSeconds(3600); // expires in 1 hour
-    Date expDate = Date.from(expiration);
-
+    //Les methodes seront utilisées pour extraire les données du json et créer un json
+    //Methode 1 :Revendication d'extraction
     public String extractUsername(String token){
         return extractClaims(token, Claims::getSubject);
     }
@@ -53,9 +49,8 @@ public class JwtUtil {
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(subject)
-            //    .setIssuedAt(new Date(System.currentTimeMillis()))
-               // .setExpiration(new Date(System.currentTimeMillis() + 200 +60*1000))
-                .setExpiration(expDate)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000*60*60*100))
                 .signWith(SignatureAlgorithm.HS256, secret).compact();
     }
 

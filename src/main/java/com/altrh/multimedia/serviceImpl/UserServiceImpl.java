@@ -1,6 +1,6 @@
 package com.altrh.multimedia.serviceImpl;
 
-import com.altrh.multimedia.constents.GeekGalaxyConstants;
+import com.altrh.multimedia.constents.MultimediaConstants;
 import com.altrh.multimedia.jwt.CustomerUsersDetailsService;
 import com.altrh.multimedia.jwt.JwtFilter;
 import com.altrh.multimedia.jwt.JwtUtil;
@@ -8,9 +8,8 @@ import com.altrh.multimedia.models.User;
 import com.altrh.multimedia.repositories.UserDao;
 import com.altrh.multimedia.service.UserService;
 import com.altrh.multimedia.utils.EmailUtils;
-import com.altrh.multimedia.utils.GeekGalaxyUtils;
+import com.altrh.multimedia.utils.MultimediaUtils;
 import com.altrh.multimedia.wrapper.UserWrapper;
-import com.google.common.base.Strings;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -42,6 +43,10 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     EmailUtils emailUtils;
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+
     @Override
     public ResponseEntity<String> signUp(Map<String, String> requestMap) {
         log.info("Inside signUp {}", requestMap);
@@ -49,23 +54,26 @@ public class UserServiceImpl implements UserService {
             if (validateSignUpMap(requestMap)) {
                 User user = userDao.findByEmailId(requestMap.get("email"));
                 if (Objects.isNull(user)) {
+                    User newUser = new User();
+
                     userDao.save(getUserFromMap(requestMap));
-                    return GeekGalaxyUtils.getResponseEntity("Successfully Registred", HttpStatus.OK);
+                    return MultimediaUtils.getResponseEntity("Successfully Registred", HttpStatus.CREATED);
                 } else {
-                    return GeekGalaxyUtils.getResponseEntity("Email already exists.", HttpStatus.BAD_REQUEST);
+
+                    return MultimediaUtils.getResponseEntity("Email already exists.", HttpStatus.BAD_REQUEST);
                 }
 
             } else {
-                return GeekGalaxyUtils.getResponseEntity(GeekGalaxyConstants.INVALID_DATA, HttpStatus.BAD_REQUEST);
+                return MultimediaUtils.getResponseEntity(MultimediaConstants.INVALID_DATA, HttpStatus.BAD_REQUEST);
             }
         }catch (Exception ex){
             ex.printStackTrace();
         }
-        return GeekGalaxyUtils.getResponseEntity(GeekGalaxyConstants.SOMTING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        return MultimediaUtils.getResponseEntity(MultimediaConstants.SOMTING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
-    public ResponseEntity<String> login(Map<String, String> requestMap) {
+    public ResponseEntity<String> login(Map<String, String> requestMap) {   //
        log.info("Inside login");
        try {
            Authentication auth = authenticationManager.authenticate(
@@ -99,12 +107,14 @@ public class UserServiceImpl implements UserService {
        return false;
     }
 
-    private User getUserFromMap(Map<String, String> requestMap){
+    private User getUserFromMap(Map<String, String> requestMap){ //cette methode sert a extraire la valeur de la requestMap
+        // et renverra un Objet User
         User user = new User();
         user.setName(requestMap.get("name"));
         user.setContactNumber(requestMap.get("contactNumber"));
         user.setEmail(requestMap.get("email"));
-        user.setPassword(requestMap.get("password"));
+        user.setPassword(bCryptPasswordEncoder.encode(requestMap.get("password")));
+       // user.setPassword(requestMap.get("password"));
         user.setStatus("false");
         user.setRole("user");
         return user;
@@ -133,18 +143,18 @@ public class UserServiceImpl implements UserService {
                if(!optional.isEmpty()){
                     userDao.updateStatus(requestMap.get("status"), Integer.parseInt(requestMap.get("id")));
                     sendMailToAllAdmin(requestMap.get("status"), optional.get().getEmail(), userDao.getAllAdmin());
-                    return GeekGalaxyUtils.getResponseEntity("User updated successfully", HttpStatus.OK);
+                    return MultimediaUtils.getResponseEntity("User updated successfully", HttpStatus.OK);
                }else{
-                   GeekGalaxyUtils.getResponseEntity("User id doesn't exist", HttpStatus.OK);
+                   MultimediaUtils.getResponseEntity("User id doesn't exist", HttpStatus.OK);
                }
             }else{
-                return GeekGalaxyUtils.getResponseEntity(GeekGalaxyConstants.UNAUTHORIZED_ACCES, HttpStatus.UNAUTHORIZED);
+                return MultimediaUtils.getResponseEntity(MultimediaConstants.UNAUTHORIZED_ACCES, HttpStatus.UNAUTHORIZED);
             }
         }catch(Exception ex){
             ex.printStackTrace();
         }
 
-        return GeekGalaxyUtils.getResponseEntity(GeekGalaxyConstants.SOMTING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        return MultimediaUtils.getResponseEntity(MultimediaConstants.SOMTING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private void sendMailToAllAdmin(String status, String user, List<String> allAdmin) {
@@ -158,7 +168,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<String> checkToken() {
-       return GeekGalaxyUtils.getResponseEntity("true", HttpStatus.OK);
+       return MultimediaUtils.getResponseEntity("true", HttpStatus.OK);
 
     }
 
@@ -170,35 +180,35 @@ public class UserServiceImpl implements UserService {
                 if(userObj.getPassword().equals(requestMap.get("oldPassword"))){
                     userObj.setPassword(requestMap.get("newPassword"));
                     userDao.save(userObj);
-                    return GeekGalaxyUtils.getResponseEntity("Password updated successflly", HttpStatus.OK);
+                    return MultimediaUtils.getResponseEntity("Password updated successflly", HttpStatus.OK);
                 }else{
-                    return GeekGalaxyUtils.getResponseEntity("Incorrect old password", HttpStatus.BAD_REQUEST);
+                    return MultimediaUtils.getResponseEntity("Incorrect old password", HttpStatus.BAD_REQUEST);
                 }
 
             }else{
-                return GeekGalaxyUtils.getResponseEntity(GeekGalaxyConstants.SOMTING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+                return MultimediaUtils.getResponseEntity(MultimediaConstants.SOMTING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }catch(Exception ex){
             ex.printStackTrace();
         }
 
-        return GeekGalaxyUtils.getResponseEntity(GeekGalaxyConstants.SOMTING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        return MultimediaUtils.getResponseEntity(MultimediaConstants.SOMTING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
     public ResponseEntity<String> forgotPassword(Map<String, String> requestMap) {
         try {
             User user = userDao.findByEmail(requestMap.get("email"));
-            if(!Objects.isNull(user) && !Strings.isNullOrEmpty(user.getEmail()))
-                emailUtils.forgotMail(user.getEmail(), "Credential by multimedia management system", user.getPassword());
-                return GeekGalaxyUtils.getResponseEntity("Check your mail for credentials", HttpStatus.OK);
+
+                emailUtils.forgotMail(user.getEmail(), "Identifiant par GeekGalaxy", user.getPassword());
+                return MultimediaUtils.getResponseEntity("Veuillez vérifier votre courrier électronique pour les identifiants!", HttpStatus.OK);
 
 
         }catch(Exception ex){
             ex.printStackTrace();
         }
 
-        return GeekGalaxyUtils.getResponseEntity(GeekGalaxyConstants.SOMTING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        return MultimediaUtils.getResponseEntity(MultimediaConstants.SOMTING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 

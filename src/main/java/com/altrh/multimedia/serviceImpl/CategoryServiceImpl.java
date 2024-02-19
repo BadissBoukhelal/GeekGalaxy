@@ -1,11 +1,11 @@
 package com.altrh.multimedia.serviceImpl;
 
-import com.altrh.multimedia.constents.GeekGalaxyConstants;
+import com.altrh.multimedia.constents.MultimediaConstants;
 import com.altrh.multimedia.jwt.JwtFilter;
 import com.altrh.multimedia.models.Category;
 import com.altrh.multimedia.repositories.CategoryDao;
 import com.altrh.multimedia.service.CategoryService;
-import com.altrh.multimedia.utils.GeekGalaxyUtils;
+import com.altrh.multimedia.utils.MultimediaUtils;
 import com.google.common.base.Strings;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,15 +32,15 @@ public class CategoryServiceImpl implements CategoryService {
             if(jwtFilter.isAdmin()){
                 if(validateCategoryMap(requestMap, false)){
                     categoryDao.save(getCategoryFormMap(requestMap, false));
-                    return GeekGalaxyUtils.getResponseEntity("Category added succefully", HttpStatus.OK);
+                    return MultimediaUtils.getResponseEntity("Category added succefully", HttpStatus.OK);
                 }
             }else{
-                return GeekGalaxyUtils.getResponseEntity(GeekGalaxyConstants.UNAUTHORIZED_ACCES, HttpStatus.UNAUTHORIZED);
+                return MultimediaUtils.getResponseEntity(MultimediaConstants.UNAUTHORIZED_ACCES, HttpStatus.UNAUTHORIZED);
             }
         }catch(Exception ex){
             ex.printStackTrace();
         }
-        return GeekGalaxyUtils.getResponseEntity(GeekGalaxyConstants.SOMTING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        return MultimediaUtils.getResponseEntity(MultimediaConstants.SOMTING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
@@ -65,19 +65,19 @@ public class CategoryServiceImpl implements CategoryService {
                    Optional optional = categoryDao.findById(Integer.parseInt(requestMap.get("id")));
                    if(!optional.isEmpty()){
                         categoryDao.save(getCategoryFormMap(requestMap, true));
-                       return GeekGalaxyUtils.getResponseEntity("Category  Updated Successfully", HttpStatus.OK);
+                       return MultimediaUtils.getResponseEntity("Category  Updated Successfully", HttpStatus.OK);
                    }else{
-                       return GeekGalaxyUtils.getResponseEntity("Category id does not exist", HttpStatus.OK);
+                       return MultimediaUtils.getResponseEntity("Category id does not exist", HttpStatus.OK);
                    }
                 }
-                return GeekGalaxyUtils.getResponseEntity(GeekGalaxyConstants.INVALID_DATA, HttpStatus.BAD_REQUEST);
+                return MultimediaUtils.getResponseEntity(MultimediaConstants.INVALID_DATA, HttpStatus.BAD_REQUEST);
             }else{
-                return GeekGalaxyUtils.getResponseEntity(GeekGalaxyConstants.UNAUTHORIZED_ACCES, HttpStatus.BAD_REQUEST);
+                return MultimediaUtils.getResponseEntity(MultimediaConstants.UNAUTHORIZED_ACCES, HttpStatus.BAD_REQUEST);
             }
         }catch(Exception ex){
             ex.printStackTrace();
         }
-        return GeekGalaxyUtils.getResponseEntity(GeekGalaxyConstants.SOMTING_WENT_WRONG, HttpStatus.UNAUTHORIZED);
+        return MultimediaUtils.getResponseEntity(MultimediaConstants.SOMTING_WENT_WRONG, HttpStatus.UNAUTHORIZED);
     }
 
 

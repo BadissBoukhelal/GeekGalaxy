@@ -1,12 +1,12 @@
 package com.altrh.multimedia.serviceImpl;
 
-import com.altrh.multimedia.constents.GeekGalaxyConstants;
+import com.altrh.multimedia.constents.MultimediaConstants;
 import com.altrh.multimedia.jwt.JwtFilter;
 import com.altrh.multimedia.models.Category;
 import com.altrh.multimedia.models.Product;
 import com.altrh.multimedia.repositories.ProductDao;
 import com.altrh.multimedia.service.ProductService;
-import com.altrh.multimedia.utils.GeekGalaxyUtils;
+import com.altrh.multimedia.utils.MultimediaUtils;
 import com.altrh.multimedia.wrapper.ProductWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,16 +30,16 @@ public class ProductServiceImpl implements ProductService {
             if(jwtFilter.isAdmin()){
                 if(validateProductMap(requestMap, false)){
                     productDao.save(getProductForm(requestMap, false));
-                    return GeekGalaxyUtils.getResponseEntity("Product added Successfully", HttpStatus.OK);
+                    return MultimediaUtils.getResponseEntity("Product added Successfully", HttpStatus.OK);
                 }
-                return GeekGalaxyUtils.getResponseEntity(GeekGalaxyConstants.INVALID_DATA, HttpStatus.BAD_REQUEST);
+                return MultimediaUtils.getResponseEntity(MultimediaConstants.INVALID_DATA, HttpStatus.BAD_REQUEST);
             }else{
-               return GeekGalaxyUtils.getResponseEntity(GeekGalaxyConstants.UNAUTHORIZED_ACCES, HttpStatus.UNAUTHORIZED);
+               return MultimediaUtils.getResponseEntity(MultimediaConstants.UNAUTHORIZED_ACCES, HttpStatus.UNAUTHORIZED);
             }
         }catch(Exception ex){
             ex.printStackTrace();
         }
-        return GeekGalaxyUtils.getResponseEntity(GeekGalaxyConstants.SOMTING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        return MultimediaUtils.getResponseEntity(MultimediaConstants.SOMTING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 
@@ -94,21 +94,21 @@ public class ProductServiceImpl implements ProductService {
                       Product product = getProductForm(requestMap, true);
                       product.setStatus(optional.get().getStatus());
                       productDao.save(product);
-                      return GeekGalaxyUtils.getResponseEntity("Product updated successfly", HttpStatus.OK);
+                      return MultimediaUtils.getResponseEntity("Product updated successfly", HttpStatus.OK);
                   }else{
-                      return GeekGalaxyUtils.getResponseEntity("Product id is does not exist", HttpStatus.OK);
+                      return MultimediaUtils.getResponseEntity("Product id is does not exist", HttpStatus.OK);
                   }
                 }else{
-                    return GeekGalaxyUtils.getResponseEntity(GeekGalaxyConstants.INVALID_DATA, HttpStatus.BAD_REQUEST);
+                    return MultimediaUtils.getResponseEntity(MultimediaConstants.INVALID_DATA, HttpStatus.BAD_REQUEST);
                 }
 
             }else{
-                return GeekGalaxyUtils.getResponseEntity(GeekGalaxyConstants.UNAUTHORIZED_ACCES, HttpStatus.UNAUTHORIZED);
+                return MultimediaUtils.getResponseEntity(MultimediaConstants.UNAUTHORIZED_ACCES, HttpStatus.UNAUTHORIZED);
             }
         }catch(Exception ex){
             ex.printStackTrace();
         }
-        return GeekGalaxyUtils.getResponseEntity(GeekGalaxyConstants.SOMTING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        return MultimediaUtils.getResponseEntity(MultimediaConstants.SOMTING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
@@ -118,17 +118,17 @@ public class ProductServiceImpl implements ProductService {
                 Optional optional = productDao.findById(id);
                 if(!optional.isEmpty()){
                     productDao.deleteById(id);
-                    return GeekGalaxyUtils.getResponseEntity("Product deleted Successfully", HttpStatus.OK);
+                    return MultimediaUtils.getResponseEntity("Product deleted Successfully", HttpStatus.OK);
                 }else{
-                    return  GeekGalaxyUtils.getResponseEntity("Product id does not exist", HttpStatus.OK);
+                    return  MultimediaUtils.getResponseEntity("Product id does not exist", HttpStatus.OK);
                 }
             }else{
-                return GeekGalaxyUtils.getResponseEntity(GeekGalaxyConstants.UNAUTHORIZED_ACCES, HttpStatus.UNAUTHORIZED);
+                return MultimediaUtils.getResponseEntity(MultimediaConstants.UNAUTHORIZED_ACCES, HttpStatus.UNAUTHORIZED);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return GeekGalaxyUtils.getResponseEntity(GeekGalaxyConstants.SOMTING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        return MultimediaUtils.getResponseEntity(MultimediaConstants.SOMTING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
@@ -138,17 +138,17 @@ public class ProductServiceImpl implements ProductService {
                 Optional optional = productDao.findById(Integer.parseInt(requestMap.get(("id"))));
                 if(!optional.isEmpty()){
                     productDao.updateProductStatus(requestMap.get("status"), Integer.parseInt(requestMap.get("id")));
-                    return GeekGalaxyUtils.getResponseEntity("Product status updated successfully", HttpStatus.OK);
+                    return MultimediaUtils.getResponseEntity("Product status updated successfully", HttpStatus.OK);
                 }else{
-                    return  GeekGalaxyUtils.getResponseEntity("Product id does not exist", HttpStatus.OK);
+                    return  MultimediaUtils.getResponseEntity("Product id does not exist", HttpStatus.OK);
                 }
             }else{
-                return GeekGalaxyUtils.getResponseEntity(GeekGalaxyConstants.UNAUTHORIZED_ACCES, HttpStatus.UNAUTHORIZED);
+                return MultimediaUtils.getResponseEntity(MultimediaConstants.UNAUTHORIZED_ACCES, HttpStatus.UNAUTHORIZED);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return GeekGalaxyUtils.getResponseEntity(GeekGalaxyConstants.SOMTING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        return MultimediaUtils.getResponseEntity(MultimediaConstants.SOMTING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override

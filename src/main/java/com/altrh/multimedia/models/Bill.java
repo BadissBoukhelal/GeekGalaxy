@@ -10,12 +10,10 @@ import java.io.Serializable;
 
 @NamedQuery(name="Bill.getAllBills", query="select b from Bill b order by b.id desc")
 
-@NamedQuery(name="Bill.getAllBillByUserName", query="select b from Bill b where b.createdby=:username order by b.id desc")
+@NamedQuery(name="Bill.getAllBillByUserName", query="select b from Bill b where b.createdBy=:username order by b.id desc")
 
 @Data
 @Entity
-@DynamicUpdate
-@DynamicInsert
 @Table(name="bill")
 public class Bill implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -34,9 +32,9 @@ public class Bill implements Serializable {
     @Column(name="paymentmethod")
     private String paymentMethode;
     @Column(name="total")
-    private Integer totlal;
+    private Integer total;
     @Column(name="productdetails", columnDefinition = "json")
     private String productDetail;
     @Column(name="createdby")
-    private String createdby;
+    private String createdBy;
 }

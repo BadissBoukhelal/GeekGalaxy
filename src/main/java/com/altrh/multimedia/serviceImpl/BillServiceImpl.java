@@ -1,11 +1,11 @@
 package com.altrh.multimedia.serviceImpl;
 
-import com.altrh.multimedia.constents.GeekGalaxyConstants;
+import com.altrh.multimedia.constents.MultimediaConstants;
 import com.altrh.multimedia.jwt.JwtFilter;
 import com.altrh.multimedia.models.Bill;
 import com.altrh.multimedia.repositories.BillDao;
 import com.altrh.multimedia.service.BillService;
-import com.altrh.multimedia.utils.GeekGalaxyUtils;
+import com.altrh.multimedia.utils.MultimediaUtils;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
@@ -45,19 +45,19 @@ public class BillServiceImpl implements BillService {
                if(requestMap.containsKey("isGenerate") && !(Boolean) requestMap.get("isGenerate")){
                    fileName = (String) requestMap.get("uuid");
                }else{
-                   fileName = GeekGalaxyUtils.getUUID();
+                   fileName = MultimediaUtils.getUUID();
                    requestMap.put("uuid", fileName);
                    insertBill(requestMap);
                }
-               String data = "name: " + requestMap.get("name") + "\n" +"Contact Number:" +requestMap.get("contactNumber")
-                       + "\n"+"Email:" +requestMap.get("email") + "\n"+ "Payment method:" +requestMap.get("paymentMethod");
+               String data = "Nom: " + requestMap.get("name") + "\n" +"Numero de télephone:" +requestMap.get("contactNumber")
+                       + "\n"+"Email:" +requestMap.get("email") + "\n"+ "Methode de paiement:" +requestMap.get("paymentMethod");
                Document document = new Document();
 
-               PdfWriter.getInstance(document, new FileOutputStream(GeekGalaxyConstants.STORE_LOCATION +"\\"+fileName+".pdf"));
+               PdfWriter.getInstance(document, new FileOutputStream(MultimediaConstants.STORE_LOCATION +"\\"+fileName+".pdf"));
                document.open();
                setRectangleInPdf(document);
 
-                Paragraph chunk = new Paragraph("Gestion de magasin multimédia", getFont("Header"));
+                Paragraph chunk = new Paragraph("Geek Galaxy Store", getFont("Header"));
                 chunk.setAlignment(Element.ALIGN_CENTER);
                 document.add(chunk);
 
@@ -68,29 +68,29 @@ public class BillServiceImpl implements BillService {
                 table.setWidthPercentage(100);
                 addTableHeader(table);
 
-                JSONArray jsonArray = GeekGalaxyUtils.getJsonArrayFromString((String) requestMap.get("productDetails"));
+                JSONArray jsonArray = MultimediaUtils.getJsonArrayFromString((String) requestMap.get("productDetails"));
                 for(int i=0; i<jsonArray.length(); i++){
-                    addRows(table, GeekGalaxyUtils.getMapFromJson(jsonArray.getString(i)));
+                    addRows(table, MultimediaUtils.getMapFromJson(jsonArray.getString(i)));
                 }
 
                 document.add(table);
 
                 Paragraph footer = new Paragraph("Total: " +requestMap.get("totalAmount")+ "\n"
-                + "Thank you for visiting. Please visit again! ", getFont("data"));
+                + "Merci pour votre visite! ", getFont("data"));
 
                 document.add(footer);
                 document.close();
                 return  new ResponseEntity<>("{\"uuid\":\""+fileName+"\"}",HttpStatus.OK );
 
             }
-            GeekGalaxyUtils.getResponseEntity("Required data not found", HttpStatus.BAD_REQUEST);
+            MultimediaUtils.getResponseEntity("Required data not found", HttpStatus.BAD_REQUEST);
 
 
 
         }catch(Exception ex){
             ex.printStackTrace();
         }
-        return GeekGalaxyUtils.getResponseEntity(GeekGalaxyConstants.SOMTING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        return MultimediaUtils.getResponseEntity(MultimediaConstants.SOMTING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private void addRows(PdfPTable table, Map<String, Object> data) {
@@ -104,13 +104,13 @@ public class BillServiceImpl implements BillService {
 
     private void addTableHeader(PdfPTable table) {
         log.info("Inside addTableHeader");
-        Stream.of("Name", "Category", "Quantity", "Price", "Sub Total")
+        Stream.of("Produit", "Categorie", "Quantité", "Prix", "Total TTC")
                 .forEach(columnTitre -> {
                     PdfPCell header = new PdfPCell();
                     header.setBackgroundColor(BaseColor.LIGHT_GRAY);
                     header.setBorderWidth(2);
                     header.setPhrase(new Phrase(columnTitre));
-                    header.setBackgroundColor(BaseColor.GREEN);
+                    header.setBackgroundColor(BaseColor.ORANGE);
                     header.setHorizontalAlignment(Element.ALIGN_CENTER);
                     header.setVerticalAlignment(Element.ALIGN_CENTER);
                     table.addCell(header);
@@ -156,9 +156,9 @@ public class BillServiceImpl implements BillService {
           bill.setEmail((String) requestMap.get("email") );
           bill.setContactNumber((String) requestMap.get("contactNumber") );
           bill.setPaymentMethode((String) requestMap.get("paymentMethod") );
-          bill.setTotlal(Integer.parseInt((String) requestMap.get("totalAmount")) );
+          bill.setTotal(Integer.parseInt((String) requestMap.get("totalAmount")) );
           bill.setProductDetail((String) requestMap.get("productDetails"));
-          bill.setCreatedby(jwtFilter.getCurrentUser());
+          bill.setCreatedBy(jwtFilter.getCurrentUser());
           billDao.save(bill);
 
         }catch(Exception ex){
@@ -168,6 +168,7 @@ public class BillServiceImpl implements BillService {
 
     private boolean validateRequestMap(Map<String, Object> requestMap) {
         return requestMap.containsKey("name") &&
+
                 requestMap.containsKey("contactNumber") &&
                 requestMap.containsKey("email") &&
                 requestMap.containsKey("paymentMethod") &&
@@ -178,16 +179,16 @@ public class BillServiceImpl implements BillService {
     @Override
     public ResponseEntity<List<Bill>> getBills() {
 
-        List<Bill> list = new ArrayList<>();
+        List<Bill> lista = new ArrayList<>();
 
             if(jwtFilter.isAdmin()){
-                list = billDao.getAllBills();
+                lista = billDao.getAllBills();
             }else{
-                list = billDao.getAllBillByUserName(jwtFilter.getCurrentUser());
+                lista = billDao.getAllBillByUserName(jwtFilter.getCurrentUser());
             }
 
 
-        return new ResponseEntity<>(list, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(lista, HttpStatus.OK);
     }
 
     @Override
@@ -197,8 +198,8 @@ public class BillServiceImpl implements BillService {
             byte[] byteArray = new byte[0];
             if(!requestMap.containsKey("uuid") && validateRequestMap(requestMap))
                 return new ResponseEntity<>(byteArray, HttpStatus.BAD_REQUEST);
-            String filePath = GeekGalaxyConstants.STORE_LOCATION+"\\"+(String) requestMap.get("uuid")+".pdf";
-            if(GeekGalaxyUtils.isFileExist((filePath))){
+            String filePath = MultimediaConstants.STORE_LOCATION+"\\"+(String) requestMap.get("uuid")+".pdf";
+            if(MultimediaUtils.isFileExist((filePath))){
                 byteArray = getByteArray(filePath);
                 return new ResponseEntity<>(byteArray, HttpStatus.OK);
             }else{
@@ -234,14 +235,14 @@ public class BillServiceImpl implements BillService {
             Optional optional = billDao.findById(id);
             if(!optional.isEmpty()) {
                 billDao.deleteById(id);
-                return GeekGalaxyUtils.getResponseEntity("Bill deleted successfullly", HttpStatus.OK);
+                return MultimediaUtils.getResponseEntity("Bill deleted successfullly", HttpStatus.OK);
             }else {
-                return GeekGalaxyUtils.getResponseEntity("Bill id does not exist", HttpStatus.OK);
+                return MultimediaUtils.getResponseEntity("Bill id does not exist", HttpStatus.OK);
             }
         }catch(Exception ex){
             ex.printStackTrace();
         }
-        return GeekGalaxyUtils.getResponseEntity(GeekGalaxyConstants.SOMTING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        return MultimediaUtils.getResponseEntity(MultimediaConstants.SOMTING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
 
     }
 }

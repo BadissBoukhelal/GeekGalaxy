@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class EmailUtils {
@@ -40,7 +41,7 @@ public class EmailUtils {
         helper.setFrom("chetouanahmed@gmail.com");
         helper.setTo(to);
         helper.setSubject(subject);
-        String htmlMsg =  "<p><b>Your Login details for GeekGalaxy Management System</b><br><b>Email: </b> " + to + " <br><b>Password: </b> " + password + "<br><a href=\"http://localhost:4200/\">Click here to login</a></p>";
+        String htmlMsg =  "<p><b>Vos Identifiants du compte Geek Galaxy</b><br><b>Email: </b> " + to + " <br><b> Mot de passe: </b> " + password + "<br><a href=\"http://localhost:4200/\">Clickez ici pour vous connecter</a></p>";
         message.setContent(htmlMsg, "text/html");
         emailSender.send(message);
     }
